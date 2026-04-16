@@ -1,4 +1,4 @@
-import Imagekit from '@imagekit/nodejs'
+import Imagekit,{toFile} from '@imagekit/nodejs'
 import { config } from '../config/config.js'
 
 const client=new Imagekit({
@@ -7,10 +7,9 @@ const client=new Imagekit({
 
 export async function uploadFile({ buffer, fileName, folder = "snitch" }) {
     const result = await client.files.upload({
-        file: await ImageKit.toFile(buffer),
+        file: await toFile(buffer),
         fileName,
         folder
     })
-
     return result
 }

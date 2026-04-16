@@ -8,13 +8,22 @@ import { Strategy as GoogleStratergy } from 'passport-google-oauth20';
 import { config } from './config/config.js';
 import morgan from 'morgan'
 import productRouter from './routers/product.routes.js';
+import cors from 'cors';
+
+
+
 dotenv.config();
-
-
 connectDB();
 const app = express();
 
 app.use(passport.initialize());
+app.use(express.json());
+app.use(cookieParser())
+app.use(morgan("dev"))
+app.use(cors({
+    origin:'http://localhost:5173',
+    credentials:true
+}))
 
 passport.use(new GoogleStratergy({
     clientID:config.GOOGLE_CLIENT_ID,
@@ -23,9 +32,7 @@ passport.use(new GoogleStratergy({
 },(accessToken,refreshToken,profile,done)=>{
     return done(null,profile)
 }))
-app.use(express.json());
-app.use(cookieParser())
-app.use(morgan("dev"))
+
 
 app.get('/',(req,res)=>{
     res.send(`<h1>home page</h1>`)

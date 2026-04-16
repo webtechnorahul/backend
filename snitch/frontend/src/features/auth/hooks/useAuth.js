@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import {setUser,logout,setLoading,setError} from "../state/auth.slice";
-import { UserLogin,UserRegister } from "../services/auth.api";
+import { UserLogin,UserRegister,getUser,GoogleLogin } from "../services/auth.api";
 const useAuth = () => {
   const dispatch = useDispatch();
   const { user, loading, error } = useSelector((state) => state.auth);
@@ -12,11 +12,6 @@ const useAuth = () => {
       dispatch(setError(null));
 
       const response = await UserLogin({email,password});
-
-
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
-      }
 
       dispatch(setUser(response.user));
       return response.user;
@@ -50,6 +45,35 @@ const useAuth = () => {
     localStorage.removeItem("token"); // optional
   };
 
+  // get user if you have a token 
+  const getCurrentUser=async()=>{
+    try {
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+
+      const response = await getUser();
+
+      dispatch(setUser(response.user));
+      return response.user;
+    } catch (err) {
+      dispatch(setError(err.message));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  // google login or register will be handled in backend and user will be set in frontend using getuser api after successful login or registration
+  const googleLogin = async () => {
+    try{
+      await GoogleLogin();
+    } catch (err) {
+      dispatch(setError(err.message));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+
   return {
     user,
     loading,
@@ -57,6 +81,8 @@ const useAuth = () => {
     login,
     register,
     signOut,
+    googleLogin,
+    getCurrentUser
   };
 };
 

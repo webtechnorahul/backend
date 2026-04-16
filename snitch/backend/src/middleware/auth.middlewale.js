@@ -30,3 +30,24 @@ export const authenticateSeller = async (req, res, next) => {
         return res.status(401).json({ message: "Unauthorized" })
     }
 }
+
+export const isTokenValid=async(req,res,next)=>{
+        try{
+        const token=req.cookies.token;
+        if(!token){
+            return res.status(401).json({error:"unauthorized user"});
+        }
+        const decoded=jwt.verify(token,config.JWT_SECRET_KEY);
+
+        const user=await userModel.findById(decoded.id);
+        if(!user){
+            return res.status(401).json({error:"unauthorized user"});
+        }
+        req.user=user;
+        next();
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+
+    }
+}

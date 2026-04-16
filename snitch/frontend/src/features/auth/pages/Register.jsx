@@ -36,11 +36,15 @@ const Register = () => {
         role:form.role
     })
     console.log(response)
-    if(user){
-      navigate('/')
+    if(response){
+        navigate('/login');
     }
-    
   };
+
+  
+  const handleGoogle=async(e)=>{
+    console.log("clicked")
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{backgroundImage:'url("https://avatars.mds.yandex.net/i?id=8ec4e9b8e60545eead3fad92b2b6c4b7c41d6955-5014002-images-thumbs&n=13")',backgroundSize: 'cover'}}>
@@ -119,6 +123,7 @@ const Register = () => {
 
           <button
                       type="button"
+                      onClick={handleGoogle}
                       className="flex items-center justify-center gap-2 bg-white text-black py-2 rounded-lg"
                     >
                       <FcGoogle size={20} />

@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-
+import useAuth from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
+  const {login,googleLogin}=useAuth();
+  const navigate=useNavigate();
   // 🔁 Two-way binding
   const handleChange = (e) => {
     setForm({
@@ -15,16 +18,22 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.email || !form.password) {
       alert("Email and Password required!");
       return;
     }
-
-    console.log("Login Data:", form);
+    const response=await login({email:form.email,password:form.password})
+    if(response){
+      navigate('/');
+    }
   };
+
+  const handleGoogle=async(e)=>{
+    await googleLogin();
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{backgroundImage:'url("https://avatars.mds.yandex.net/i?id=8ec4e9b8e60545eead3fad92b2b6c4b7c41d6955-5014002-images-thumbs&n=13")',backgroundSize: 'cover'}}>
@@ -60,6 +69,7 @@ const Login = () => {
           </button>
 
           <button
+          onClick={handleGoogle}
             type="button"
             className="flex items-center justify-center gap-2 bg-white text-black py-2 rounded-lg"
           >
