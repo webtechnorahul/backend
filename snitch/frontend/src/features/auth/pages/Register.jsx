@@ -117,8 +117,8 @@ const Register = () => {
 
 </div>
 
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold">
-            Register
+          <button disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold disabled:opacity-50">
+            {loading ? 'Registering...' : 'Register'}
           </button>
 
           <button

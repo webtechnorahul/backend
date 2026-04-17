@@ -42,7 +42,7 @@ const useAuth = () => {
   // 🚪 Logout
   const signOut = () => {
     dispatch(logout());
-    localStorage.removeItem("token"); // optional
+    req.cookies.token = null; // Clear the token cookie on logout
   };
 
   // get user if you have a token 

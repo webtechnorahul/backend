@@ -8,7 +8,7 @@ const Login = () => {
     password: "",
   });
 
-  const {login,googleLogin}=useAuth();
+  const {login,googleLogin,loading}=useAuth();
   const navigate=useNavigate();
   // 🔁 Two-way binding
   const handleChange = (e) => {
@@ -64,8 +64,8 @@ const Login = () => {
             className="px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-300 outline-none focus:ring-2 focus:ring-indigo-500"
           />
 
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold">
-            Login
+          <button disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold disabled:opacity-50">
+            {loading ? 'Logging in...' : 'Login'}
           </button>
 
           <button
