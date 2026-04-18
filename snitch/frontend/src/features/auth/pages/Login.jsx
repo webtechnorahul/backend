@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import cookies from "js-cookie";
 const Login = () => {
   const [form, setForm] = useState({
     email: "",
@@ -34,6 +35,16 @@ const Login = () => {
   const handleGoogle=async(e)=>{
     await googleLogin();
   }
+  const handleAuthStage=()=>{
+    const token=cookies.get('token');
+    if(token){
+      navigate('/');
+    }
+  }
+
+  useEffect(()=>{
+    handleAuthStage();
+  },[])
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{backgroundImage:'url("https://avatars.mds.yandex.net/i?id=8ec4e9b8e60545eead3fad92b2b6c4b7c41d6955-5014002-images-thumbs&n=13")',backgroundSize: 'cover'}}>

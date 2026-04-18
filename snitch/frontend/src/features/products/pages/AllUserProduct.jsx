@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import useProduct from '../hooks/useProduct';
+import { useNavigate } from 'react-router-dom';
 
 const AllUserProduct = () => {
   const { products, loading, error, getAllProducts } = useProduct();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getAllProducts();
@@ -19,16 +21,6 @@ const AllUserProduct = () => {
       setFilteredProducts(filtered);
     }
   }, [products, searchTerm]);
-
-  const handleBuyNow = (product) => {
-    // TODO: Implement buy now functionality
-    alert(`Buying ${product.title} for ${product.price.currency} ${product.price.amount}`);
-  };
-
-  const handleAddToCart = (product) => {
-    // TODO: Implement add to cart functionality
-    alert(`Added ${product.title} to cart`);
-  };
 
   return (
     <div className="bg-gray-50 py-10">
@@ -79,9 +71,11 @@ const AllUserProduct = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredProducts.map((product) => (
-                  <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div onClick={()=>{
+                      navigate(`/products/${product._id}`)
+                    }} key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     {/* Product Image */}
-                    <div className="h-48 bg-gray-200 relative overflow-hidden">
+                    <div  className="h-48 bg-gray-200 relative overflow-hidden">
                       {product.images && product.images.length > 0 ? (
                         <img
                           src={product.images[0].url}
@@ -129,13 +123,11 @@ const AllUserProduct = () => {
                       {/* Action Buttons */}
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => handleBuyNow(product)}
                           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors duration-200"
                         >
                           Buy Now
                         </button>
                         <button
-                          onClick={() => handleAddToCart(product)}
                           className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium py-2 px-4 rounded-md transition-colors duration-200"
                         >
                           Add to Cart

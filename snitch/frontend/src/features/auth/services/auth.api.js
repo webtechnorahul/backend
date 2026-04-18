@@ -25,3 +25,7 @@ export async function getUser(){
 export async function GoogleLogin(){
     window.location.href = "http://localhost:3000/api/auth/google";
 }
+export async function userLogout() {
+    const response = await api.post('/logout');
+    return response.data;
+}

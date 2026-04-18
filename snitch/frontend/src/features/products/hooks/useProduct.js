@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { setProducts, addProduct, setCreatedProduct, setLoading, setError, clearError } from "../state/product.slice";
-import { createProductAPI, getSellerProductsAPI, getAllProductsAPI } from "../services/product.api.js";
+import { createProductAPI, getSellerProductsAPI, getAllProductsAPI,getProductByIdAPI } from "../services/product.api.js";
 
 const useProduct = () => {
   const dispatch = useDispatch();
@@ -61,6 +61,22 @@ const useProduct = () => {
     }
   };
 
+  // get product details by id
+    const getProductById = async (productId) => {
+    try {
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+      const response = await getProductByIdAPI(productId);
+      return response.product;
+    } catch (err) {
+      dispatch(setError(err.response?.data?.message || err.message));
+      throw err;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+
   // Clear error
   const clearProductError = () => {
     dispatch(clearError());
@@ -74,7 +90,8 @@ const useProduct = () => {
     createProduct,
     getSellerProducts,
     getAllProducts,
-    clearProductError
+    clearProductError,
+    getProductById
   };
 };
 

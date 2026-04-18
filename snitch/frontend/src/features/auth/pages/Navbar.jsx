@@ -8,7 +8,6 @@ const Navbar = () => {
 
   const handleuser = async () => {
     const res = await getCurrentUser();
-    console.log(res);
     if (!res) {
       navigate('/login');
     }
@@ -18,8 +17,9 @@ const Navbar = () => {
     handleuser();
   }, []);
 
-  const handleLogout = () => {
-    signOut();
+  const handleLogout = async() => {
+    const message=await signOut();
+    alert(`${message}`);
     navigate('/login');
   };
 

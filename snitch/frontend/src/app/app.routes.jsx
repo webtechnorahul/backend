@@ -8,6 +8,7 @@ import ProtectSellerRoute from '../features/auth/components/ProtectSellerRoute'
 import Protected from '../features/auth/components/Protected'
 import Dashboard from '../features/products/pages/DashBoard'
 import Navbar from '../features/auth/pages/Navbar'
+import ProductDetail from '../features/products/pages/ProductDetail'
 
 const Layout = ({ children }) => (
   <div className="min-h-screen bg-gray-50">
@@ -27,40 +28,44 @@ export const router = createBrowserRouter([
   },
   {
   path: '/seller',
-  element: (
-    <Protected>
-      <ProtectSellerRoute>
-        <Layout />
-      </ProtectSellerRoute>
-    </Protected>
-  ),
+  element: <ProtectSellerRoute/>,
   children: [
     {
       index: true,
-      element: <Dashboard />
+      element: <Layout>
+        <Dashboard />
+      </Layout>
     },
     {
       path: 'create-product',
-      element: <CreateProduct />
+      element: <Layout>
+        <CreateProduct />
+      </Layout>
     },
     {
       path: 'my-products',
-      element: <AllProduct />
+      element: <Layout>
+        <AllProduct />
+      </Layout>
     }
   ]
 }
 ,
   {
     path: '/products',
-    element: (
-      <Protected>
-        <Layout />
-      </Protected>
-    ),
+    element:<Protected/>,
     children: [
       {
         index: true,
-        element: <AllUserProduct />
+        element: <Layout>
+          <AllUserProduct />
+        </Layout>
+      },
+      {
+        path:'/products/:id',
+        element:<Layout>
+          <ProductDetail/>
+        </Layout>
       }
     ]
   },
@@ -74,7 +79,10 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element:<AllUserProduct/>
+        element:<Layout>
+          <AllUserProduct/>
+        </Layout>
+
       }
     ]
   },

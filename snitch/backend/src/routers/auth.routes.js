@@ -11,6 +11,10 @@ const router = express.Router();
 router.post('/register',validateRegisterUser, register);
 router.post('/login',validateLoginUser, login);
 router.get('/getuser',isTokenValid,getuser)
+router.post('/logout',(req,res)=>{
+    res.clearCookie('token');
+    res.json({message:"Logged out successfully"})
+})
 
 router.get("/google",
     passport.authenticate("google",{scope:["profile","email"]})

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import {setUser,logout,setLoading,setError} from "../state/auth.slice";
-import { UserLogin,UserRegister,getUser,GoogleLogin } from "../services/auth.api";
+import { UserLogin,UserRegister,getUser,GoogleLogin,userLogout } from "../services/auth.api";
 const useAuth = () => {
   const dispatch = useDispatch();
   const { user, loading, error } = useSelector((state) => state.auth);
@@ -40,9 +40,9 @@ const useAuth = () => {
   };
 
   // 🚪 Logout
-  const signOut = () => {
-    dispatch(logout());
-    req.cookies.token = null; // Clear the token cookie on logout
+  const signOut = async() => {
+    const res=await userLogout();
+    return res.message; // Clear the token cookie on logout
   };
 
   // get user if you have a token 
