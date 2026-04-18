@@ -32,21 +32,15 @@ export const router = createBrowserRouter([
   children: [
     {
       index: true,
-      element: <Layout>
-        <Dashboard />
-      </Layout>
+      element: <Dashboard/>
     },
     {
       path: 'create-product',
-      element: <Layout>
-        <CreateProduct />
-      </Layout>
+      element: <CreateProduct/>
     },
     {
       path: 'my-products',
-      element: <Layout>
-        <AllProduct />
-      </Layout>
+      element: <AllProduct/>
     }
   ]
 }
@@ -62,7 +56,7 @@ export const router = createBrowserRouter([
         </Layout>
       },
       {
-        path:'/products/:id',
+        path:':id',
         element:<Layout>
           <ProductDetail/>
         </Layout>

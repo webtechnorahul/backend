@@ -1,216 +1,205 @@
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import useAuth from "../../auth/hooks/useAuth";
-import useProduct from "../hooks/useProduct";
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import useProduct from '../hooks/useProduct';
 
-const Dashboard = () => {
+const DashBoard = () => {
   const navigate = useNavigate();
-  const { getCurrentUser, user, loading: authLoading } = useAuth();
-  const { products, loading: productsLoading, getSellerProducts } = useProduct();
+  const { getAllProducts, loading } = useProduct();
+  const [sellerProducts, setSellerProducts] = useState([]);
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    totalRevenue: 0,
+    avgPrice: 0,
+  });
+  const [error, setError] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState({});
 
-  const handleuser = async () => {
-    const res = await getCurrentUser();
-    console.log(res);
-    if (!res) {
-      navigate('/login');
+  useEffect(() => {
+    fetchSellerProducts();
+  }, []);
+
+  const fetchSellerProducts = async () => {
+    try {
+      const products = await getAllProducts();
+      
+      if (products && Array.isArray(products)) {
+        setSellerProducts(products);
+        
+        // Calculate stats
+        const totalProducts = products.length;
+        const totalRevenue = products.reduce((sum, product) => {
+          return sum + (product.price?.amount || 0);
+        }, 0);
+        const avgPrice = totalProducts > 0 ? (totalRevenue / totalProducts).toFixed(2) : 0;
+        
+        setStats({
+          totalProducts,
+          totalRevenue,
+          avgPrice,
+        });
+      }
+    } catch (err) {
+      setError('Failed to fetch products');
+      console.error('Error fetching products:', err);
     }
   };
 
-  useEffect(() => {
-    handleuser();
-  }, []);
+  const handleDeleteProduct = async (productId) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this product?');
+    if (!confirmDelete) return;
 
-  useEffect(() => {
-    if (user && user.role === 'seller') {
-      getSellerProducts();
+    setDeleteLoading(prev => ({ ...prev, [productId]: true }));
+    try {
+      // Call delete API - adjust based on your API
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (response.ok) {
+        setSellerProducts(prev => prev.filter(p => p._id !== productId));
+        setStats(prev => ({
+          ...prev,
+          totalProducts: prev.totalProducts - 1,
+        }));
+      } else {
+        setError('Failed to delete product');
+      }
+    } catch (err) {
+      setError('Error deleting product');
+      console.error('Error deleting product:', err);
+    } finally {
+      setDeleteLoading(prev => ({ ...prev, [productId]: false }));
     }
-  }, [user]);
+  };
 
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center py-10">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center py-10">
-        <div className="text-xl">Please login to access dashboard</div>
-      </div>
-    );
-  }
-
-  if (user.role !== 'seller') {
-    return (
-      <div className="flex items-center justify-center py-10">
-        <div className="text-xl">This dashboard is for sellers only</div>
-      </div>
-    );
-  }
+  const handleEditProduct = (productId) => {
+    // Navigate to edit page or open edit modal
+    navigate(`/seller/edit-product/${productId}`);
+  };
 
   return (
-    <div className="bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Seller Dashboard</h1>
-              <p className="mt-1 text-sm text-gray-500">Welcome back, {user.name}!</p>
-            </div>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => navigate('/seller/create-product')}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-              >
-                Create Product
-              </button>
-              <button
-                onClick={() => navigate('/seller/my-products')}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-              >
-                View All Products
-              </button>
-            </div>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Seller Dashboard</h1>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
+
+        {/* Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold text-gray-700">Total Products</h2>
+            <p className="text-3xl font-bold text-blue-600">{stats.totalProducts}</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold text-gray-700">Total Revenue</h2>
+            <p className="text-3xl font-bold text-green-600">${stats.totalRevenue}</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold text-gray-700">Avg Price</h2>
+            <p className="text-3xl font-bold text-purple-600">${stats.avgPrice}</p>
           </div>
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Total Products</dt>
-                    <dd className="text-lg font-medium text-gray-900">{products.length}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Total Sales</dt>
-                    <dd className="text-lg font-medium text-gray-900">$0</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">This Month</dt>
-                    <dd className="text-lg font-medium text-gray-900">$0</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
+        {/* Quick Actions */}
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">Quick Actions</h2>
+          <div className="flex flex-wrap space-x-4">
+            <Link
+              to="/seller/create-product"
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+            >
+              + Create New Product
+            </Link>
+            <Link
+              to="/seller/my-products"
+              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+            >
+              View All Products
+            </Link>
           </div>
         </div>
 
         {/* Recent Products */}
-        <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">Recent Products</h3>
-              <button
-                onClick={() => navigate('/seller/my-products')}
-                className="text-sm text-blue-600 hover:text-blue-500"
-              >
-                View all
-              </button>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">Recent Products</h2>
+          
+          {loading ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">Loading products...</p>
             </div>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">Your latest product listings</p>
-          </div>
-
-          {productsLoading ? (
-            <div className="px-4 py-5 sm:p-6 text-center">
-              <div className="text-gray-500">Loading products...</div>
-            </div>
-          ) : products.length === 0 ? (
-            <div className="px-4 py-5 sm:p-6 text-center">
-              <div className="text-gray-500">No products yet. Create your first product!</div>
-              <button
-                onClick={() => navigate('/seller/create-product')}
-                className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-              >
-                Create Product
-              </button>
+          ) : sellerProducts.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="px-4 py-2 text-left">Image</th>
+                    <th className="px-4 py-2 text-left">Title</th>
+                    <th className="px-4 py-2 text-left">Price</th>
+                    <th className="px-4 py-2 text-left">Created</th>
+                    <th className="px-4 py-2 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sellerProducts.slice(0, 5).map((product) => (
+                    <tr key={product._id} className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-2">
+                        <img
+                          src={product.images?.[0]?.url || '/placeholder.jpg'}
+                          alt={product.title}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                      </td>
+                      <td className="px-4 py-2 font-medium">{product.title}</td>
+                      <td className="px-4 py-2">
+                        {product.price?.currency} {product.price?.amount}
+                      </td>
+                      <td className="px-4 py-2 text-sm">
+                        {new Date(product.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-2 space-x-2">
+                        <Link
+                          to={`/products/${product._id}`}
+                          className="text-blue-500 hover:underline text-sm"
+                        >
+                          View
+                        </Link>
+                        <button
+                          onClick={() => handleEditProduct(product._id)}
+                          className="text-orange-500 hover:underline text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProduct(product._id)}
+                          disabled={deleteLoading[product._id]}
+                          className="text-red-500 hover:underline text-sm disabled:opacity-50"
+                        >
+                          {deleteLoading[product._id] ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-200">
-              {products.slice(0, 5).map((product) => (
-                <li key={product._id}>
-                  <div className="px-4 py-4 sm:px-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-12 w-12">
-                          {product.images?.[0]?.url ? (
-                            <img
-                              className="h-12 w-12 rounded-lg object-cover"
-                              src={product.images[0].url}
-                              alt={product.title}
-                            />
-                          ) : (
-                            <div className="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
-                              <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            </div>
-                          )}
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{product.title}</div>
-                          <div className="text-sm text-gray-500">{product.description.substring(0, 50)}...</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-medium text-gray-900">
-                          {product.price.currency} {product.price.amount}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {new Date(product.createdAt).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <div className="text-center py-8">
+              <p className="text-gray-600 mb-4">No products found</p>
+              <Link
+                to="/seller/create-product"
+                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 inline-block"
+              >
+                Create Your First Product
+              </Link>
+            </div>
           )}
         </div>
       </div>
@@ -218,4 +207,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashBoard;
