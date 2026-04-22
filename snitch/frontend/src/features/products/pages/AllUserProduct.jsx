@@ -5,8 +5,31 @@ import { useNavigate } from 'react-router-dom';
 const AllUserProduct = () => {
   const { products, loading, error, getAllProducts } = useProduct();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedPriceRange, setSelectedPriceRange] = useState('');
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const navigate = useNavigate();
+
+  // Sample categories - in real app, fetch from API
+  const categories = ['All', 'Electronics', 'Clothing', 'Books', 'Home & Garden', 'Sports', 'Other'];
+
+  // Price ranges
+  const priceRanges = [
+    { label: 'Up to ₹350', min: 0, max: 350 },
+    { label: '₹350 - ₹500', min: 350, max: 500 },
+    { label: '₹500 - ₹700', min: 500, max: 700 },
+    { label: '₹700 - ₹1,000', min: 700, max: 1000 },
+    { label: 'Over ₹1,000', min: 1000, max: Infinity }
+  ];
+
+  // Colors
+  const colors = ['Red', 'Yellow', 'Blue', 'Green', 'Black', 'White'];
+
+  // Sizes
+  const sizes = ['26', '28', '30', '32', '34', '36', 'S', 'M', 'L', 'XL'];
 
   useEffect(() => {
     getAllProducts();
@@ -14,13 +37,43 @@ const AllUserProduct = () => {
 
   useEffect(() => {
     if (products) {
-      const filtered = products.filter(product =>
+      let filtered = products.filter(product =>
         product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
+
+      // Filter by category
+      if (selectedCategory && selectedCategory !== 'All') {
+        filtered = filtered.filter(product => product.category === selectedCategory);
+      }
+
+      // Filter by price range
+      if (selectedPriceRange) {
+        const range = priceRanges.find(r => r.label === selectedPriceRange);
+        if (range) {
+          filtered = filtered.filter(product =>
+            product.price.amount >= range.min && product.price.amount <= range.max
+          );
+        }
+      }
+
+      // Filter by colors
+      if (selectedColors.length > 0) {
+        filtered = filtered.filter(product =>
+          selectedColors.some(color => product.color?.toLowerCase() === color.toLowerCase())
+        );
+      }
+
+      // Filter by sizes
+      if (selectedSizes.length > 0) {
+        filtered = filtered.filter(product =>
+          selectedSizes.some(size => product.size === size)
+        );
+      }
+
       setFilteredProducts(filtered);
     }
-  }, [products, searchTerm]);
+  }, [products, searchTerm, selectedCategory, selectedPriceRange, selectedColors, selectedSizes]);
 
   return (
     <div className="bg-gray-50 py-10">
@@ -31,9 +84,9 @@ const AllUserProduct = () => {
           <p className="text-lg text-gray-600">Discover amazing products from our sellers</p>
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-8">
-          <div className="max-w-md mx-auto">
+        {/* Search Bar and Filter Button */}
+        <div className="mb-8 flex items-center justify-center space-x-4">
+          <div className="flex-1 max-w-md">
             <input
               type="text"
               placeholder="Search products..."
@@ -42,7 +95,125 @@ const AllUserProduct = () => {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+          {searchTerm && (
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
+          )}
         </div>
+
+        {/* Filters */}
+        {(showFilters) && (
+          <div className="mb-8 bg-white p-6 rounded-lg shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Category Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {categories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Price Range Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+                <div className="space-y-2">
+                  {priceRanges.map(range => (
+                    <label key={range.label} className="flex items-center">
+                      <input
+                        type="radio"
+                        name="priceRange"
+                        value={range.label}
+                        checked={selectedPriceRange === range.label}
+                        onChange={(e) => setSelectedPriceRange(e.target.value)}
+                        className="mr-2"
+                      />
+                      <span className="text-sm">{range.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Color Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {colors.map(color => (
+                    <label key={color} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        value={color}
+                        checked={selectedColors.includes(color)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedColors([...selectedColors, color]);
+                          } else {
+                            setSelectedColors(selectedColors.filter(c => c !== color));
+                          }
+                        }}
+                        className="mr-2"
+                      />
+                      <span className="text-sm">{color}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Size Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Size</label>
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {sizes.map(size => (
+                    <label key={size} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        value={size}
+                        checked={selectedSizes.includes(size)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedSizes([...selectedSizes, size]);
+                          } else {
+                            setSelectedSizes(selectedSizes.filter(s => s !== size));
+                          }
+                        }}
+                        className="mr-2"
+                      />
+                      <span className="text-sm">{size}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Clear Filters */}
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setSelectedCategory('');
+                  setSelectedPriceRange('');
+                  setSelectedColors([]);
+                  setSelectedSizes([]);
+                }}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Loading State */}
         {loading && (

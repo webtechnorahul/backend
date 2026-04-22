@@ -1,100 +1,54 @@
-import { useNavigate, Link } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-import { useEffect } from "react";
+import { FaHome, FaHeart, FaShoppingCart, FaComments, FaUser } from "react-icons/fa";
 
 const Navbar = () => {
-  const navigate = useNavigate();
-  const { getCurrentUser, user, loading, signOut } = useAuth();
-
-  const handleuser = async () => {
-    const res = await getCurrentUser();
-    if (!res) {
-      navigate('/login');
-    }
-  };
-
-  useEffect(() => {
-    handleuser();
-  }, []);
-
-  const handleLogout = async() => {
-    const message=await signOut();
-    alert(`${message}`);
-    navigate('/login');
-  };
-
-  if (loading) {
-    return (
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <div className="text-xl font-bold text-gray-900">Snitch</div>
-            </div>
-            <div className="flex items-center">
-              <div className="text-gray-500">Loading...</div>
-            </div>
-          </div>
-        </div>
-      </nav>
-    );
-  }
-
   return (
-    <nav className="bg-white shadow-sm border-b">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="text-xl font-bold text-gray-900">
-              Snitch
-            </Link>
+    <div className=" select-none w-full flex justify-center sticky top-0 z-50 bg-[#f5f5f5] py-1">
+      
+      <div className="w-[90%] bg-white shadow-md rounded-full px-6 py-3 flex items-center justify-between">
+
+        {/* LEFT - LOGO */}
+        <div className="flex items-center gap-2">
+          <span className="text-2xl font-bold text-gray-700">
+            Snitch
+          </span>
+        </div>
+
+        {/* RIGHT - NAV LINKS */}
+        <div className="flex items-center gap-8 text-gray-600">
+
+          <div className="flex items-center gap-1 hover:text-pink-500 cursor-pointer">
+            <FaHome />
+            <span>Home</span>
           </div>
 
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <>
-                <Link
-                  to="/products"
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Browse Products
-                </Link>
-                <span className="text-gray-700">Welcome, {user.name}</span>
-                {user.role === 'seller' && (
-                  <Link
-                    to="/seller"
-                    className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    Dashboard
-                  </Link>
-                )}
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <div className="space-x-4">
-                <Link
-                  to="/login"
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                >
-                  Register
-                </Link>
-              </div>
-            )}
+          <div className="flex items-center gap-1 hover:text-pink-500 cursor-pointer">
+            <FaHeart />
+            <span>Wishlist</span>
           </div>
+
+          <div className="relative flex items-center gap-1 hover:text-pink-500 cursor-pointer">
+            <FaShoppingCart />
+            <span>Cart</span>
+
+            {/* Badge */}
+            <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs px-1.5 rounded-full">
+              3
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1 hover:text-pink-500 cursor-pointer">
+            <FaComments />
+            <span>Messages</span>
+          </div>
+
+          <div className="flex items-center gap-1 hover:text-pink-500 cursor-pointer">
+            <FaUser />
+            <span>Profile</span>
+          </div>
+
         </div>
       </div>
-    </nav>
+    </div>
   );
 };
 

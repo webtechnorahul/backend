@@ -9,11 +9,13 @@ import Protected from '../features/auth/components/Protected'
 import Dashboard from '../features/products/pages/DashBoard'
 import Navbar from '../features/auth/pages/Navbar'
 import ProductDetail from '../features/products/pages/ProductDetail'
+import Footer from '../features/shared/components/Footer'
 
 const Layout = ({ children }) => (
   <div className="min-h-screen bg-gray-50">
     <Navbar />
     <main>{children}</main>
+    <Footer />
   </div>
 );
 
