@@ -7,12 +7,12 @@ import AllUserProduct from '../features/products/pages/AllUserProduct'
 import ProtectSellerRoute from '../features/auth/components/ProtectSellerRoute'
 import Protected from '../features/auth/components/Protected'
 import Dashboard from '../features/products/pages/DashBoard'
-import Navbar from '../features/auth/pages/Navbar'
+import Navbar from '../features/shared/components/Navbar'
 import ProductDetail from '../features/products/pages/ProductDetail'
 import Footer from '../features/shared/components/Footer'
 
 const Layout = ({ children }) => (
-  <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen bg-[#0e0e11]">
     <Navbar />
     <main>{children}</main>
     <Footer />
