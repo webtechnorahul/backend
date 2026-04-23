@@ -63,38 +63,42 @@ const ProductDetail = () => {
 
     const handleColorSelect = (color) => {
         setSelectedColor(color);
-        const variant = product.variants.find(v => v.attributes.color === color);
-        if (variant) {
-            setSelectedVariant(variant);
-            // If the new color doesn't have the currently selected size, reset size or pick first available
-            const hasSize = product.variants.some(v => v.attributes.color === color && v.attributes.size === selectedSize);
-            if (!hasSize) setSelectedSize(variant.attributes.size);
-        }
         setCurrentImageIndex(0);
     };
 
     const handleSizeSelect = (size) => {
         setSelectedSize(size);
-        if (selectedColor) {
-            const variant = product.variants.find(v => v.attributes.color === selectedColor && v.attributes.size === size);
-            if (variant) setSelectedVariant(variant);
-        } else {
-            const variant = product.variants.find(v => v.attributes.size === size);
-            if (variant) {
-                setSelectedVariant(variant);
-                setSelectedColor(variant.attributes.color);
-            }
-        }
         setCurrentImageIndex(0);
     };
+
+    useEffect(() => {
+        if (selectedColor && selectedSize) {
+            const variant = product.variants.find(v => 
+                v.attributes.color === selectedColor && 
+                (Array.isArray(v.attributes.size) ? v.attributes.size.includes(selectedSize) : v.attributes.size === selectedSize)
+            );
+            if (variant) setSelectedVariant(variant);
+        } else if (!selectedColor && !selectedSize) {
+            setSelectedVariant(null);
+        }
+    }, [selectedColor, selectedSize, product]);
 
     if (loading && !product) return <div className="flex justify-center items-center h-screen"><h1 className="text-2xl font-bold">Loading...</h1></div>;
 
     if (!product) return <div className="flex justify-center items-center h-screen"><p className="text-xl">Product not found.</p></div>;
 
-    const currentImages = selectedVariant ? selectedVariant.images : product.images;
-    const currentPrice = selectedVariant ? selectedVariant.price : product.price;
+    // Find images and price based on current selection
+    const colorVariant = selectedColor ? product.variants.find(v => v.attributes.color === selectedColor) : null;
+    const currentImages = selectedVariant ? selectedVariant.images : (colorVariant ? colorVariant.images : product.images);
+    const currentPrice = selectedVariant ? selectedVariant.price : (colorVariant ? colorVariant.price : product.price);
     const currentStock = selectedVariant ? selectedVariant.stock : 'In Stock';
+
+    const DUMMY_SIZES = ['S', 'M', 'L', 'XL'];
+    const availableSizes = selectedColor
+        ? [...new Set(product.variants
+            .filter(v => v.attributes.color === selectedColor)
+            .flatMap(v => Array.isArray(v.attributes.size) ? v.attributes.size : [v.attributes.size]))]
+        : DUMMY_SIZES;
 
     return (
         <div className="select-none max-w-4xl mx-auto p-6 bg-white backdrop-blur-md shadow-2xl rounded-3xl my-10 border border-gray-100">
@@ -184,10 +188,10 @@ const ProductDetail = () => {
                                         className={`group flex flex-col items-center gap-2 transition-all duration-300`}
                                     >
                                         <div className={`w-16 h-16 rounded overflow-hidden border-2 transition-all duration-300 ${!selectedVariant ? 'border-indigo-500 scale-110 shadow-lg shadow-indigo-500/20' : 'border-gray-100 opacity-60 hover:opacity-100'}`}>
-                                            <img 
-                                                src={product.images?.[0]?.url} 
-                                                alt="Default" 
-                                                className="w-full h-full object-cover" 
+                                            <img
+                                                src={product.images?.[0]?.url}
+                                                alt="Default"
+                                                className="w-full h-full object-cover"
                                             />
                                         </div>
                                     </button>
@@ -200,10 +204,10 @@ const ProductDetail = () => {
                                             className={`group flex flex-col items-center gap-2 transition-all duration-300`}
                                         >
                                             <div className={`w-16 h-16 rounded overflow-hidden border-2 transition-all duration-300 ${selectedColor === variant.attributes.color ? 'border-indigo-500 scale-110 shadow-lg shadow-indigo-500/20' : 'border-gray-100 opacity-60 hover:opacity-100'}`}>
-                                                <img 
-                                                    src={variant.images?.[0]?.url || product.images?.[0]?.url} 
-                                                    alt={variant.attributes.color} 
-                                                    className="w-full h-full object-cover" 
+                                                <img
+                                                    src={variant.images?.[0]?.url || product.images?.[0]?.url}
+                                                    alt={variant.attributes.color}
+                                                    className="w-full h-full object-cover"
                                                 />
                                             </div>
                                             <span className={`text-[10px] font-black uppercase tracking-widest ${selectedColor === variant.attributes.color ? 'text-indigo-600' : 'text-gray-400'}`}>
@@ -214,25 +218,19 @@ const ProductDetail = () => {
                                 </div>
                             </div>
 
-                            {/* Size Selection */}
+                            {/* Size Selection - Always show dummy or real sizes */}
                             <div className="">
                                 <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em]">Select Size</h3>
                                 <div className="flex flex-wrap gap-3">
-                                    {[...new Set(product.variants.map(v => v.attributes.size))].map((size, index) => {
-                                        // Check if this size is available for the selected color
-                                        const isAvailable = selectedColor ? product.variants.some(v => v.attributes.color === selectedColor && v.attributes.size === size) : true;
-                                        
+                                    {availableSizes.map((size, index) => {
                                         return (
                                             <button
                                                 key={index}
-                                                disabled={!isAvailable}
                                                 onClick={() => handleSizeSelect(size)}
                                                 className={`min-w-[60px] h-12 rounded-xl border-2 font-black transition-all duration-300 flex items-center justify-center uppercase tracking-widest text-xs
-                                                    ${selectedSize === size 
-                                                        ? 'border-indigo-500 bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
-                                                        : isAvailable 
-                                                            ? 'border-gray-100 text-gray-600 hover:border-gray-200 hover:text-gray-900' 
-                                                            : 'border-gray-50 text-gray-300 opacity-50 cursor-not-allowed'
+                                                    ${selectedSize === size
+                                                        ? 'border-indigo-500 bg-indigo-500 text-white shadow-lg shadow-indigo-500/20'
+                                                        : 'border-gray-100 text-gray-600 hover:border-gray-200 hover:text-gray-900'
                                                     }`}
                                             >
                                                 {size}

@@ -13,7 +13,7 @@ const AddVariant = () => {
         stock: '',
         attributes: {
             color: '',
-            size: ''
+            size: []
         }
     });
     const [images, setImages] = useState([]);
@@ -21,7 +21,17 @@ const AddVariant = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        if (name.startsWith('attr_')) {
+        if (name === 'attr_size') {
+            // Convert comma-separated string to array
+            const sizes = value.split(',').map(s => s.trim());
+            setFormData(prev => ({
+                ...prev,
+                attributes: {
+                    ...prev.attributes,
+                    size: sizes
+                }
+            }));
+        } else if (name.startsWith('attr_')) {
             const attrName = name.replace('attr_', '');
             setFormData(prev => ({
                 ...prev,
@@ -118,11 +128,11 @@ const AddVariant = () => {
                     </div>
 
                     <div className="space-y-3">
-                        <label className="block text-sm font-bold text-gray-500 uppercase tracking-wider">Size</label>
+                        <label className="block text-sm font-bold text-gray-500 uppercase tracking-wider">Sizes (Comma separated)</label>
                         <input
                             type="text"
                             name="attr_size"
-                            value={formData.attributes.size}
+                            value={Array.isArray(formData.attributes.size) ? formData.attributes.size.join(', ') : formData.attributes.size}
                             onChange={handleInputChange}
                             className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-200 text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
                             placeholder="e.g. S, M, L, XL"

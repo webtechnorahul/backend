@@ -106,8 +106,8 @@ const AllUserProduct = () => {
                 {/* Image Section */}
                 <div className="relative h-96 overflow-hidden">
                   <img
-                    src={product.images?.[0]?.url || '/placeholder.jpg'}
-                    alt={product.title}
+                    src={product.images?.[0]?.url || product.images?.[1]?.url}
+                    alt={product.images?.[1]?.url}
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -122,12 +122,10 @@ const AllUserProduct = () => {
                 {/* Content Section */}
                 <div className=" px-5 flex flex-col flex-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-2xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1 tracking-tight">
+                    <h3 className=" flex flex-wrap text-xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1 tracking-tight">
                       {product.title}
                     </h3>
-                    <div className="rating">
-                      <p className="text-yellow-500 text-2xl">&#9733;&#9733;&#9733;&#9733;&#9733;</p>
-                    </div>
+                    
                   </div>
 
                   <div className="flex items-center justify-between border-t border-gray-100">
