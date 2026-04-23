@@ -1,6 +1,14 @@
 import { useDispatch, useSelector } from "react-redux";
 import { setProducts, addProduct, setCreatedProduct, setLoading, setError, clearError } from "../state/product.slice";
-import { createProductAPI, getSellerProductsAPI, getAllProductsAPI,getProductByIdAPI } from "../services/product.api.js";
+import { 
+  createProductAPI, 
+  getSellerProductsAPI, 
+  getAllProductsAPI, 
+  getProductByIdAPI,
+  addVariantAPI,
+  getVariantsAPI,
+  deleteVariantAPI
+} from "../services/product.api.js";
 
 const useProduct = () => {
   const dispatch = useDispatch();
@@ -76,6 +84,51 @@ const useProduct = () => {
     }
   };
 
+  // Add a variant to a product
+  const addVariant = async (productId, variantData) => {
+    try {
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+      const response = await addVariantAPI(productId, variantData);
+      return response.variant;
+    } catch (err) {
+      dispatch(setError(err.response?.data?.message || err.message));
+      throw err;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  // Get all variants for a product
+  const getVariants = async (productId) => {
+    try {
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+      const response = await getVariantsAPI(productId);
+      return response.variants;
+    } catch (err) {
+      dispatch(setError(err.response?.data?.message || err.message));
+      throw err;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  // Delete a variant
+  const deleteVariant = async (productId, variantId) => {
+    try {
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+      const response = await deleteVariantAPI(productId, variantId);
+      return response;
+    } catch (err) {
+      dispatch(setError(err.response?.data?.message || err.message));
+      throw err;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
 
   // Clear error
   const clearProductError = () => {
@@ -91,8 +144,11 @@ const useProduct = () => {
     getSellerProducts,
     getAllProducts,
     clearProductError,
-    getProductById
+    getProductById,
+    addVariant,
+    getVariants,
+    deleteVariant
   };
 };
 
-export default useProduct;
+export default useProduct;

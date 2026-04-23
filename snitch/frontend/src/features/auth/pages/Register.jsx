@@ -60,9 +60,9 @@ const Register = () => {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{backgroundImage:'url("https://avatars.mds.yandex.net/i?id=8ec4e9b8e60545eead3fad92b2b6c4b7c41d6955-5014002-images-thumbs&n=13")',backgroundSize: 'cover'}}>
       
-      <div className="w-87.5 select-none backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/20" style={{background:"linear-gradient(to top left,#53587f 85%,black )"}}>
+      <div className="w-87.5 bg-white p-8 rounded-2xl shadow-2xl border border-gray-200">
         
-        <h2 className="text-2xl font-bold text-center text-white mb-6">
+        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
           Create Account
         </h2>
 
@@ -74,7 +74,7 @@ const Register = () => {
             placeholder="Full Name"
             value={form.name}
             onChange={handleChange}
-            className="px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-300 outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-4 py-2 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500"
           />
 
           <input
@@ -83,7 +83,7 @@ const Register = () => {
             placeholder="Email"
             value={form.email}
             onChange={handleChange}
-            className="px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-300 outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-4 py-2 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500"
           />
 
           <input
@@ -92,13 +92,13 @@ const Register = () => {
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
-            className="px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-300 outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-4 py-2 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <div className="flex gap-6">
   
   <label
-    className={`flex select-none items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer text-white
-    ${form.role === "buyer" ? "border-green-500 border-2 bg-slate-700 " : "border-gray-600"}`}
+    className={`flex select-none items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer 
+    ${form.role === "buyer" ? "border-indigo-500 border-2 bg-indigo-50 text-indigo-700 font-bold" : "border-gray-200 text-gray-500"}`}
   >
     <input
       type="radio"
@@ -112,8 +112,8 @@ const Register = () => {
   </label>
 
   <label
-    className={`flex select-none items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer text-white
-    ${form.role === "seller" ? "border-green-500 border-2 bg-slate-700 " : "border-gray-600"}`}
+    className={`flex select-none items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer 
+    ${form.role === "seller" ? "border-indigo-500 border-2 bg-indigo-50 text-indigo-700 font-bold" : "border-gray-200 text-gray-500"}`}
   >
     <input
       type="radio"
@@ -143,9 +143,9 @@ const Register = () => {
 
         </form>
 
-        <p className="text-gray-300 text-sm text-center mt-4">
+        <p className="text-gray-600 text-sm text-center mt-4">
           Already have an account?
-          <a href="/login" className="text-blue-300 font-bold ml-1">
+          <a href="/login" className="text-blue-600 font-bold ml-1">
             Login
           </a>
         </p>

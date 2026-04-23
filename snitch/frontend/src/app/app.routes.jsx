@@ -9,10 +9,11 @@ import Protected from '../features/auth/components/Protected'
 import Dashboard from '../features/products/pages/DashBoard'
 import Navbar from '../features/shared/components/Navbar'
 import ProductDetail from '../features/products/pages/ProductDetail'
+import AddVariant from '../features/products/pages/AddVariant'
 import Footer from '../features/shared/components/Footer'
 
 const Layout = ({ children }) => (
-  <div className="min-h-screen bg-[#0e0e11]">
+  <div className="min-h-screen bg-white">
     <Navbar />
     <main>{children}</main>
     <Footer />
@@ -61,6 +62,12 @@ export const router = createBrowserRouter([
         path:':id',
         element:<Layout>
           <ProductDetail/>
+        </Layout>
+      },
+      {
+        path:':id/add-variant',
+        element:<Layout>
+          <AddVariant/>
         </Layout>
       }
     ]

@@ -4,7 +4,7 @@ import useProduct from '../hooks/useProduct';
 
 const DashBoard = () => {
   const navigate = useNavigate();
-  const { getAllProducts, loading } = useProduct();
+  const { getSellerProducts, loading } = useProduct();
   const [sellerProducts, setSellerProducts] = useState([]);
   const [stats, setStats] = useState({
     totalProducts: 0,
@@ -20,7 +20,7 @@ const DashBoard = () => {
 
   const fetchSellerProducts = async () => {
     try {
-      const products = await getAllProducts();
+      const products = await getSellerProducts();
       
       if (products && Array.isArray(products)) {
         setSellerProducts(products);
@@ -50,12 +50,9 @@ const DashBoard = () => {
 
     setDeleteLoading(prev => ({ ...prev, [productId]: true }));
     try {
-      // Call delete API - adjust based on your API
+      // In a real app, you'd use a custom hook or API service here
       const response = await fetch(`/api/products/${productId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
       });
 
       if (response.ok) {
@@ -69,120 +66,107 @@ const DashBoard = () => {
       }
     } catch (err) {
       setError('Error deleting product');
-      console.error('Error deleting product:', err);
     } finally {
       setDeleteLoading(prev => ({ ...prev, [productId]: false }));
     }
   };
 
-  const handleEditProduct = (productId) => {
-    // Navigate to edit page or open edit modal
-    navigate(`/seller/edit-product/${productId}`);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Seller Dashboard</h1>
-
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
-            {error}
-          </div>
-        )}
+    <div className="min-h-screen p-8 space-y-10">
+      <div className="max-w-7xl mx-auto space-y-10">
+        <header className="flex justify-between items-center">
+          <h1 className="text-5xl font-black text-gray-900 tracking-tighter">Seller <span className="text-indigo-500">Dashboard</span></h1>
+          <Link
+            to="/seller/create-product"
+            className="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/20 tracking-widest uppercase"
+          >
+            + New Product
+          </Link>
+        </header>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-700">Total Products</h2>
-            <p className="text-3xl font-bold text-blue-600">{stats.totalProducts}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-white p-8 rounded-3xl border border-gray-200 space-y-2">
+            <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest">Total Products</h2>
+            <p className="text-5xl font-black text-gray-900">{stats.totalProducts}</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-700">Total Revenue</h2>
-            <p className="text-3xl font-bold text-green-600">${stats.totalRevenue}</p>
+          <div className="bg-white p-8 rounded-3xl border border-gray-200 space-y-2">
+            <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest">Revenue (Base)</h2>
+            <p className="text-5xl font-black text-green-500">₹{stats.totalRevenue}</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-700">Avg Price</h2>
-            <p className="text-3xl font-bold text-purple-600">${stats.avgPrice}</p>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Quick Actions</h2>
-          <div className="flex flex-wrap space-x-4">
-            <Link
-              to="/seller/create-product"
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-            >
-              + Create New Product
-            </Link>
-            <Link
-              to="/seller/my-products"
-              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
-            >
-              View All Products
-            </Link>
+          <div className="bg-white p-8 rounded-3xl border border-gray-200 space-y-2">
+            <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest">Average Price</h2>
+            <p className="text-5xl font-black text-purple-500">₹{stats.avgPrice}</p>
           </div>
         </div>
 
-        {/* Recent Products */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Recent Products</h2>
+        {/* Recent Products Table */}
+        <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
+          <div className="p-8 border-b border-white/5 flex justify-between items-center">
+            <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Your Products</h2>
+            {error && <span className="text-red-400 font-bold text-sm bg-red-400/10 px-4 py-1 rounded-full border border-red-400/20">{error}</span>}
+          </div>
           
           {loading ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600">Loading products...</p>
+            <div className="p-20 text-center space-y-4">
+              <div className="animate-spin h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div>
+              <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">Loading inventory...</p>
             </div>
           ) : sellerProducts.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="px-4 py-2 text-left">Image</th>
-                    <th className="px-4 py-2 text-left">Title</th>
-                    <th className="px-4 py-2 text-left">Price</th>
-                    <th className="px-4 py-2 text-left">Created</th>
-                    <th className="px-4 py-2 text-left">Actions</th>
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-gray-50 text-gray-500 text-xs font-black uppercase tracking-widest">
+                    <th className="px-8 py-6">Product</th>
+                    <th className="px-8 py-6">Base Price</th>
+                    <th className="px-8 py-6">Variants</th>
+                    <th className="px-8 py-6">Created</th>
+                    <th className="px-8 py-6 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {sellerProducts.slice(0, 5).map((product) => (
-                    <tr key={product._id} className="border-b hover:bg-gray-50">
-                      <td className="px-4 py-2">
-                        <img
-                          src={product.images?.[0]?.url || '/placeholder.jpg'}
-                          alt={product.title}
-                          className="w-12 h-12 object-cover rounded"
-                        />
+                <tbody className="divide-y divide-gray-100">
+                  {sellerProducts.map((product) => (
+                    <tr key={product._id} className="hover:bg-gray-50 transition-colors group">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                          <img
+                            src={product.images?.[0]?.url || '/placeholder.jpg'}
+                            alt={product.title}
+                            className="w-16 h-16 object-cover rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300"
+                          />
+                          <div>
+                            <p className="font-bold text-gray-900 text-lg">{product.title}</p>
+                            <p className="text-xs text-gray-500 uppercase font-black">{product.variants?.length || 0} Variant(s)</p>
+                          </div>
+                        </div>
                       </td>
-                      <td className="px-4 py-2 font-medium">{product.title}</td>
-                      <td className="px-4 py-2">
+                      <td className="px-8 py-6 font-bold text-indigo-400">
                         {product.price?.currency} {product.price?.amount}
                       </td>
-                      <td className="px-4 py-2 text-sm">
+                      <td className="px-8 py-6">
+                        <Link
+                          to={`/products/${product._id}/add-variant`}
+                          className="text-xs font-black bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-lg hover:bg-indigo-500 hover:text-white transition-all uppercase tracking-tighter"
+                        >
+                          + Add Variant
+                        </Link>
+                      </td>
+                      <td className="px-8 py-6 text-sm text-gray-500 font-medium">
                         {new Date(product.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-4 py-2 space-x-2">
+                      <td className="px-8 py-6 text-right space-x-4">
                         <Link
                           to={`/products/${product._id}`}
-                          className="text-blue-500 hover:underline text-sm"
+                          className="text-gray-900 hover:text-indigo-600 font-bold transition-colors"
                         >
-                          View
+                          VIEW
                         </Link>
-                        <button
-                          onClick={() => handleEditProduct(product._id)}
-                          className="text-orange-500 hover:underline text-sm"
-                        >
-                          Edit
-                        </button>
                         <button
                           onClick={() => handleDeleteProduct(product._id)}
                           disabled={deleteLoading[product._id]}
-                          className="text-red-500 hover:underline text-sm disabled:opacity-50"
+                          className="text-red-500 hover:text-red-400 font-bold transition-colors disabled:opacity-30"
                         >
-                          {deleteLoading[product._id] ? 'Deleting...' : 'Delete'}
+                          {deleteLoading[product._id] ? '...' : 'DELETE'}
                         </button>
                       </td>
                     </tr>
@@ -191,13 +175,14 @@ const DashBoard = () => {
               </table>
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-600 mb-4">No products found</p>
+            <div className="p-20 text-center space-y-6">
+              <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto text-3xl">📦</div>
+              <p className="text-gray-400 font-medium text-lg">No products found in your inventory.</p>
               <Link
                 to="/seller/create-product"
-                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 inline-block"
+                className="inline-block bg-gray-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-black transition-all shadow-xl shadow-gray-200"
               >
-                Create Your First Product
+                CREATE YOUR FIRST PRODUCT
               </Link>
             </div>
           )}
@@ -207,4 +192,4 @@ const DashBoard = () => {
   );
 };
 
-export default DashBoard;
+export default DashBoard;

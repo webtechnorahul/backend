@@ -49,9 +49,9 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{backgroundImage:'url("https://avatars.mds.yandex.net/i?id=8ec4e9b8e60545eead3fad92b2b6c4b7c41d6955-5014002-images-thumbs&n=13")',backgroundSize: 'cover'}}>
       
-      <div className="w-87.5 bg-white/10 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/20" style={{background:"linear-gradient(to top left,#53587f 85%,black )"}}>
+      <div className="w-87.5 bg-white p-8 rounded-2xl shadow-2xl border border-gray-200">
         
-        <h2 className="text-2xl font-bold text-center text-white mb-6">
+        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
           Login
         </h2>
 
@@ -63,7 +63,7 @@ const Login = () => {
             placeholder="Email"
             value={form.email}
             onChange={handleChange}
-            className="px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-300 outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-4 py-2 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500"
           />
 
           <input
@@ -72,7 +72,7 @@ const Login = () => {
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
-            className="px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-300 outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-4 py-2 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500"
           />
 
           <button disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold disabled:opacity-50">
@@ -89,9 +89,9 @@ const Login = () => {
           </button>
         </form>
 
-        <p className="text-gray-300 text-sm text-center mt-4">
+        <p className="text-gray-600 text-sm text-center mt-4">
           Don't have an account?
-          <a href="/register" className="text-blue-300 font-bold ml-1">
+          <a href="/register" className="text-blue-600 font-bold ml-1">
             Register
           </a>
         </p>

@@ -1,112 +1,109 @@
-import { FaHome, FaHeart, FaShoppingCart, FaComments,FaUserCircle } from "react-icons/fa";
+import { FaHome, FaHeart, FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import useAuth from '../../auth/hooks/useAuth.js'
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+
 const Navbar = () => {
-  const navigate=useNavigate()
-  const {signOut,loading,user,getCurrentUser}=useAuth()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { signOut, user, getCurrentUser } = useAuth();
+
   async function logoutuser() {
-    await signOut()
-    .then(()=>{
-      alert('you are logout successfully')
-    })
+    await signOut();
     navigate('/login');
   }
-  const handleuser = async () => {
-    const res = await getCurrentUser();
-    console.log(res);
-    if (!res) {
-      navigate('/login');
-    }
-  }
-  useEffect(()=>{
-    handleuser();
-  },[])
+
+  useEffect(() => {
+    getCurrentUser();
+  }, []);
+
+  const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="select-none w-full flex justify-center sticky top-0 z-50 bg-[#f5f5f5] py-1">
-      
-      <div className="w-[90%] bg-white shadow-md rounded-full px-6 py-3 flex items-center justify-between">
-
-        {/* LEFT - LOGO */}
-        <div className="flex items-center gap-2">
-          <span className="text-2xl font-bold text-gray-700">
-            Snitch
+    <nav className="select-none w-full sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 py-4 px-8">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        
+        {/* LOGO */}
+        <Link to="/" className="flex items-center gap-2 group">
+          <span className="text-3xl font-black text-gray-900 tracking-tighter group-hover:text-indigo-500 transition-colors">
+            SNITCH<span className="text-indigo-500">.</span>
           </span>
-        </div>
+        </Link>
 
-        {/* RIGHT - NAV LINKS */}
-        <div className="flex items-center gap-8 text-gray-600">
-
-          {/* HOME (WRAPPED) */}
-
+        {/* NAV LINKS */}
+        <div className="flex items-center gap-10">
           
-          {
+          <div className="flex items-center gap-8 text-sm font-black uppercase tracking-widest">
+            <Link 
+              to="/" 
+              className={`flex items-center gap-2 transition-all ${isActive('/') ? 'text-indigo-500' : 'text-gray-500 hover:text-gray-900'}`}
+            >
+              <FaHome className="text-lg" />
+              <span className="hidden md:inline">Home</span>
+            </Link>
 
-          user?.role === 'seller' && (
-                  <Link
-                    to="/seller"
-                    className="flex items-center text-gray font-bold gap-1 hover:text-pink-500 cursor-pointer bg-blue-300 py-1 px-3 rounded-2xl"
-                  >
-                    Dashboard
-                  </Link>
-                )}
+            <Link 
+              to="/favourite" 
+              className={`flex items-center gap-2 transition-all ${isActive('/favourite') ? 'text-pink-500' : 'text-gray-500 hover:text-gray-900'}`}
+            >
+              <FaHeart className="text-lg" />
+              <span className="hidden md:inline">Wishlist</span>
+            </Link>
 
-          <div onClick={()=>{
-            navigate('/')
-          }} className="flex items-center gap-1 hover:text-pink-500 cursor-pointer">
-            <FaHome />
-            <span>Home</span>
+            <Link 
+              to="/add-cart" 
+              className={`relative flex items-center gap-2 transition-all ${isActive('/add-cart') ? 'text-indigo-500' : 'text-gray-500 hover:text-gray-900'}`}
+            >
+              <FaShoppingCart className="text-lg" />
+              <span className="hidden md:inline">Cart</span>
+              <span className="absolute -top-3 -right-4 bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded-full border-2 border-white">
+                3
+              </span>
+            </Link>
+
+            {user?.role === 'seller' && (
+              <Link
+                to="/seller"
+                className={`px-4 py-2 rounded-xl transition-all ${isActive('/seller') ? 'bg-indigo-600 text-white' : 'bg-indigo-600/10 text-indigo-400 hover:bg-indigo-600 hover:text-white'}`}
+              >
+                Dashboard
+              </Link>
+            )}
           </div>
 
-          <div onClick={()=>navigate('/favourite')} className="flex items-center gap-1 hover:text-pink-500 cursor-pointer">
-            <FaHeart />
-            <span>Wishlist</span>
-          </div>
-
-          <div onClick={()=>navigate('/add-cart')} className="relative flex items-center gap-1 hover:text-pink-500 cursor-pointer">
-            <FaShoppingCart />
-            <span>Cart</span>
-
-            <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs px-1.5 rounded-full">
-              3
-            </span>
-          </div>
-
-          {/* <div className="flex items-center gap-1 hover:text-pink-500 cursor-pointer">
-            <FaComments />
-            <span>Messages</span>
-          </div> */}
-
-          {/* PROFILE (ICON ONLY + HOVER DROPDOWN) */}
-          <div className="relative group cursor-pointer">
-            
-            {/* ICON ONLY */}
-            <div className="flex items-center hover:text-pink-500 text-3xl">
+          {/* PROFILE */}
+          <div className="relative group">
+            <div className="flex items-center text-gray-500 hover:text-gray-900 text-3xl cursor-pointer transition-colors">
               <FaUserCircle />
             </div>
 
             {/* DROPDOWN */}
-            <div className="absolute right-0 mt-3 w-40 bg-white shadow-lg rounded-xl p-3 
+            <div className="absolute right-0 mt-4 w-56 bg-white border border-gray-100 shadow-2xl rounded-2xl p-3 
                             opacity-0 invisible group-hover:opacity-100 group-hover:visible 
-                            translate-y-2 group-hover:translate-y-0 
-                            transition-all duration-200">
+                            translate-y-4 group-hover:translate-y-0 
+                            transition-all duration-300">
+              
+              <div className="px-4 py-3 border-b border-gray-100 mb-2">
+                <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Logged in as</p>
+                <p className="text-sm font-bold text-gray-900 truncate">{user?.name || 'User'}</p>
+              </div>
 
-              <button className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100">
+              <Link to="/profile" className="block w-full text-left px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-400 hover:text-gray-900 font-bold transition-all">
                 Edit Profile
-              </button>
+              </Link>
 
-              <button onClick={logoutuser} className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 text-red-500">
+              <button 
+                onClick={logoutuser} 
+                className="w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-500 font-bold transition-all mt-1"
+              >
                 Logout
               </button>
-
             </div>
           </div>
-
         </div>
       </div>
-    </div>
+    </nav>
   );
 };
 
-export default Navbar;
+export default Navbar;
