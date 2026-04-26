@@ -3,22 +3,44 @@ import { useNavigate, Link } from 'react-router-dom';
 import useProduct from '../hooks/useProduct';
 
 const CreateProduct = () => {
-    const { createProduct, loading, error, clearProductError } = useProduct();
+    const { createProduct, loading, error, clearProductError,addVariant } = useProduct();
     const navigate = useNavigate();
     const [form, setForm] = useState({
         title: '',
         description: '',
         priceAmount: '',
         priceCurrency: 'INR',
-        images: []
+        images: [],
+        attributes: {
+            color: '',
+            size: ''
+        },
+        stock: ''
     });
     const [createdId, setCreatedId] = useState(null);
     const [previewImages, setPreviewImages] = useState([]);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm({ ...form, [name]: value });
-    };
+    const { name, value } = e.target;
+
+    if (name === 'attr_color' || name === 'attr_size') {
+        setForm((prev) => ({
+            ...prev,
+            attributes: {
+                ...prev.attributes,
+                color: name === 'attr_color' ? value : prev.attributes.color,
+                size: name === 'attr_size'
+                    ? value.split(',').map(s => s.trim())
+                    : prev.attributes.size
+            }
+        }));
+    } else {
+        setForm((prev) => ({
+            ...prev,
+            [name]: value
+        }));
+    }
+};
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
@@ -40,6 +62,16 @@ const CreateProduct = () => {
             if (product && product._id) {
                 setCreatedId(product._id);
             }
+            const variants=await addVariant(product._id, {
+                priceAmount: parseFloat(form.priceAmount),
+                priceCurrency: 'INR',
+                attributes: {
+                color: form.attributes.color,
+                size: form.attributes.size
+                },
+                stock: parseInt(form.stock) || 0,
+                images: form.images
+            });
         } catch (err) {
             console.error(err);
         }
@@ -143,6 +175,48 @@ const CreateProduct = () => {
                         </div>
                     </div>
 
+                    {/* attributes and stock features */}
+                    <div className="space-y-4">
+                        <label className="block text-sm font-bold text-gray-500 uppercase tracking-wider">Attributes</label>
+                        <div className="space-y-3">
+                        <label className="block text-sm font-bold text-gray-500 uppercase tracking-wider">Stock Quantity</label>
+                        <input
+                            type="number"
+                            name="stock"
+                            value={form.stock}
+                            onChange={handleChange}
+                            required
+                            className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-200 text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+                            placeholder="e.g. 50"
+                        />
+                    </div>
+
+                    {/* Attributes Section */}
+                    <div className="space-y-3">
+                        <label className="block text-sm font-bold text-gray-500 uppercase tracking-wider">Color</label>
+                        <input
+                            type="text"
+                            name="attr_color"
+                            value={form.attributes.color}
+                            onChange={handleChange}
+                            className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-200 text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+                            placeholder="e.g. Red, Blue"
+                        />
+                    </div>
+
+                    <div className="space-y-3">
+                        <label className="block text-sm font-bold text-gray-500 uppercase tracking-wider">Sizes (Comma separated)</label>
+                        <input
+                            type="text"
+                            name="attr_size"
+                            value={Array.isArray(form.attributes.size) ? form.attributes.size.join(', ') : form.attributes.size}
+                            onChange={handleChange}
+                            className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-200 text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+                            placeholder="e.g. S, M, L, XL"
+                        />
+                    </div>
+                    </div>
+
                     {/* Images Section */}
                     <div className="space-y-4">
                         <label className="block text-sm font-bold text-gray-500 uppercase tracking-wider">Product Images</label>
@@ -196,4 +270,4 @@ const CreateProduct = () => {
     );
 };
 
-export default CreateProduct;
+export default CreateProduct;

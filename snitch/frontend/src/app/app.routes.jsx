@@ -11,6 +11,7 @@ import Navbar from '../features/shared/components/Navbar'
 import ProductDetail from '../features/products/pages/ProductDetail'
 import AddVariant from '../features/products/pages/AddVariant'
 import Footer from '../features/shared/components/Footer'
+import Cart from '../features/cart/pages/Cart'
 
 const Layout = ({ children }) => (
   <div className="min-h-screen bg-white">
@@ -69,9 +70,16 @@ export const router = createBrowserRouter([
         element:<Layout>
           <AddVariant/>
         </Layout>
-      }
+      },
+      
     ]
   },
+  {
+        path:'/cart',
+        element:<Layout>
+          <Cart/>
+        </Layout>
+      },
   {
     path: '/',
     element: (

@@ -1,5 +1,6 @@
 import { FaHome, FaHeart, FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import useAuth from '../../auth/hooks/useAuth.js'
+import useCart from '../../cart/hooks/useCart.js'
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -7,6 +8,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { signOut, user, getCurrentUser } = useAuth();
+  const { cart } = useCart();
 
   async function logoutuser() {
     await signOut();
@@ -51,14 +53,16 @@ const Navbar = () => {
             </Link>
 
             <Link 
-              to="/add-cart" 
-              className={`relative flex items-center gap-2 transition-all ${isActive('/add-cart') ? 'text-indigo-500' : 'text-gray-500 hover:text-gray-900'}`}
+              to="/cart" 
+              className={`relative flex items-center gap-2 transition-all ${isActive('/cart') ? 'text-indigo-500' : 'text-gray-500 hover:text-gray-900'}`}
             >
               <FaShoppingCart className="text-lg" />
               <span className="hidden md:inline">Cart</span>
-              <span className="absolute -top-3 -right-4 bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded-full border-2 border-white">
-                3
-              </span>
+              {cart.length > 0 && (
+                <span className="absolute -top-3 -right-4 bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded-full border-2 border-white">
+                  {cart.length}
+                </span>
+              )}
             </Link>
 
             {user?.role === 'seller' && (

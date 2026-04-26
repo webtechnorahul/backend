@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import useProduct from '../hooks/useProduct';
 import useAuth from '../../auth/hooks/useAuth';
+import useCart from '../../cart/hooks/useCart';
 
 
 const ProductDetail = () => {
     const { id } = useParams();
     const { getProductById, loading } = useProduct();
+    const { addToCart } = useCart();
     const { user } = useAuth();
     const [product, setProduct] = useState(null)
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -45,8 +47,30 @@ const ProductDetail = () => {
         console.log('Buy button clicked');
     };
 
-    const handleAddToCart = () => {
-        console.log('Add to Cart button clicked');
+    const handleAddToCart = async () => {
+        if (!selectedSize) {
+            alert("Please select a size before adding to cart.");
+            return;
+        }
+
+        let variantId = selectedVariant?._id;
+        let currentPrices;
+        if (!variantId) {
+            variantId=product.variants?.[0]?._id;
+            currentPrices =product.price;
+
+        }else{
+            currentPrices=selectedVariant.price;
+        }
+        
+
+        try {
+            await addToCart(product._id, variantId, 1, currentPrices,selectedSize);
+            alert("Item added to cart successfully!");
+        } catch (error) {
+            alert("Failed to add item to cart: " + error.message);
+        }
+        
     };
 
     const handleVariantSelect = (variant) => {
@@ -70,7 +94,7 @@ const ProductDetail = () => {
         setSelectedSize(size);
         setCurrentImageIndex(0);
     };
-
+    
     useEffect(() => {
         if (selectedColor && selectedSize) {
             const variant = product.variants.find(v => 
@@ -81,6 +105,7 @@ const ProductDetail = () => {
         } else if (!selectedColor && !selectedSize) {
             setSelectedVariant(null);
         }
+
     }, [selectedColor, selectedSize, product]);
 
     if (loading && !product) return <div className="flex justify-center items-center h-screen"><h1 className="text-2xl font-bold">Loading...</h1></div>;
